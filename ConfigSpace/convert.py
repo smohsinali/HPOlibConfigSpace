@@ -21,9 +21,10 @@
 from argparse import ArgumentParser, FileType
 from string import upper
 
-from ConfigSpace.io import pb
-from ConfigSpace.io import pyll
+# from ConfigSpace.io import pbs
+# from ConfigSpace.io import pyll
 from ConfigSpace.io import pcs
+from ConfigSpace.io import pir
 
 
 __authors__ = ["Katharina Eggensperger", "Matthias Feurer"]
@@ -39,11 +40,13 @@ def main():
 
     parser.add_argument("--from", dest="conv_from", choices=['SMAC', 'Smac', 'smac',
                                                              'TPE', 'Tpe', 'tpe', 'hyperopt',
-                                                             'SPEARMINT', 'Spearmint', 'spearmint'],
+                                                             'SPEARMINT', 'Spearmint', 'spearmint',
+                                                             'IRACE', 'Irace', 'irace'],
                         default="", help="Convert from which format?", required=True)
     parser.add_argument("--to", dest="conv_to", choices=['SMAC', 'Smac', 'smac',
                                                          'TPE', 'Tpe', 'tpe', 'hyperopt',
-                                                         'SPEARMINT', 'Spearmint', 'spearmint'],
+                                                         'SPEARMINT', 'Spearmint', 'spearmint',
+                                                         'IRACE', 'Irace', 'irace'],
                         default="", help="Convert to which format?", required=True)
     parser.add_argument('input_file', nargs='?', type=FileType('r'))
     parser.add_argument("-s", "--save", dest="save", metavar="destination",
@@ -63,17 +66,19 @@ def main():
         raise ValueError("No input file given")
 
     read_options = {"SMAC": pcs.read,
-                    "SPEARMINT": pb.read,
-                    "TPE": pyll.read
+                    # "SPEARMINT": pb.read,
+                    # "TPE": pyll.read
+                    "IRACE": pir.write
                     }
     # First read searchspace
     print "Reading searchspace..."
     searchspace = read_options[args.conv_from](args.input_file)
-    print "...done. Found %d params" % len(searchspace)
+    print "...done. Found %d params" % len(searchspace._hyperparameters)
 
     write_options = {"SMAC": pcs.write,
-                     "SPEARMINT": pb.write,
-                     "TPE": pyll.write
+                     # "SPEARMINT": pb.write,
+                     # "TPE": pyll.write
+                     "IRACE": pir.write
                      }
     new_space = write_options[args.conv_to](searchspace)
 
